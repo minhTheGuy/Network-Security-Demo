@@ -1,0 +1,41 @@
+{
+  "name": "register-login-nextjs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@magic-sdk/admin": "^2.8.2",
+    "@simplewebauthn/browser": "^13.2.2",
+    "@simplewebauthn/server": "^13.2.2",
+    "axios": "^1.5.1",
+    "bcryptjs": "^2.4.3",
+    "bufferutil": "^4.0.9",
+    "encoding": "^0.1.13",
+    "jsonwebtoken": "^9.0.2",
+    "magic-sdk": "^31.2.0",
+    "mongoose": "^7.6.3",
+    "next": "^15",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-icons": "^4.11.0",
+    "utf-8-validate": "^6.0.5"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.5",
+    "@types/jsonwebtoken": "^9.0.4",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10",
+    "eslint": "^8",
+    "eslint-config-next": "15.0.2",
+    "postcss": "^8",
+    "tailwindcss": "^3",
+    "typescript": "^5"
+  }
+}
