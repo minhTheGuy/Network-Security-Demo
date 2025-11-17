@@ -1,3 +1,7 @@
+/**
+ * Database connection management
+ */
+
 import mongoose from 'mongoose';
 
 export async function connectToMongoDB() {
@@ -13,7 +17,7 @@ export async function connectToMongoDB() {
 			console.log('Kết nối MongoDB thành công!');
 		});
 
-		connection.on('error', (err: Error) => { 
+		connection.on('error', (err: Error) => {
 			console.error('Lỗi kết nối MongoDB:', err);
 			process.exit(1);
 		});

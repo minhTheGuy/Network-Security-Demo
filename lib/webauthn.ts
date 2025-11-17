@@ -1,3 +1,8 @@
+/**
+ * WebAuthn utility functions and helpers
+ * Wraps @simplewebauthn for simplified usage
+ */
+
 import {
 	generateRegistrationOptions,
 	generateAuthenticationOptions,
@@ -77,4 +82,3 @@ export function base64URLToBuffer(data: string): Uint8Array {
 	const buffer = Buffer.from(data, 'base64url');
 	return new Uint8Array(buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength));
 }
-

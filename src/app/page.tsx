@@ -20,7 +20,7 @@ export default function Home() {
 				</button>
 			</Link>
 
-			<Link href="/login">
+			<Link href="/sign-in">
 				<button className="bg-white text-black px-20 py-5 mt-4 rounded-full font-bold text-2xl cursor-pointer hover:opacity-80 border border-black">
 					Đăng Nhập
 				</button>

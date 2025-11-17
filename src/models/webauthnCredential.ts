@@ -1,15 +1,17 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IWebAuthnCredential extends Document {
+	_id: Types.ObjectId;
 	userId: Types.ObjectId;
 	credentialId: string;
 	publicKey: string;
-	signCount: number;
+	counter: number;
+	deviceType: 'singleDevice' | 'multiDevice';
+	backedUp: boolean;
 	aaguid?: string;
-	deviceMetadata?: Record<string, unknown>;
-	revoked: boolean;
+	transports?: string[];
 	createdAt: Date;
-	lastUsedAt?: Date;
+	updatedAt: Date;
 }
 
 const WebAuthnCredentialSchema = new Schema<IWebAuthnCredential>(
@@ -17,15 +19,13 @@ const WebAuthnCredentialSchema = new Schema<IWebAuthnCredential>(
 		userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
 		credentialId: { type: String, required: true, unique: true },
 		publicKey: { type: String, required: true },
-		signCount: { type: Number, default: 0 },
+		counter: { type: Number, default: 0 },
+		deviceType: { type: String, enum: ['singleDevice', 'multiDevice'], default: 'singleDevice' },
+		backedUp: { type: Boolean, default: false },
 		aaguid: { type: String },
-		deviceMetadata: { type: Schema.Types.Mixed },
-		revoked: { type: Boolean, default: false },
-		lastUsedAt: { type: Date },
+		transports: [{ type: String }],
 	},
-	{
-		timestamps: { createdAt: true, updatedAt: false },
-	}
+	{ timestamps: true, versionKey: false }
 );
 
 WebAuthnCredentialSchema.index({ userId: 1, credentialId: 1 }, { unique: true });
@@ -33,4 +33,3 @@ WebAuthnCredentialSchema.index({ userId: 1, credentialId: 1 }, { unique: true })
 export default
 	mongoose.models.WebAuthnCredential ||
 	mongoose.model<IWebAuthnCredential>('WebAuthnCredential', WebAuthnCredentialSchema);
-
