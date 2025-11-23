@@ -85,6 +85,22 @@ export const SignInForm: React.FC = () => {
 				<p className="mt-4 text-red-400 text-sm text-center w-[350px]">{errorMessage}</p>
 			)}
 
+			<div className="mt-6 w-[350px]">
+				<div className="relative flex items-center">
+					<div className="flex-grow border-t border-gray-400"></div>
+					<span className="flex-shrink mx-4 text-gray-400 text-sm">hoặc</span>
+					<div className="flex-grow border-t border-gray-400"></div>
+				</div>
+			</div>
+
+			<Link href="/faceid/login">
+				<button
+					type="button"
+					className="w-[350px] p-2 border-2 border-blue-500 text-blue-500 rounded-lg focus:outline-none focus:border-blue-600 uppercase px-40 py-3 mt-6 font-bold hover:bg-blue-500 hover:text-white transition-colors">
+					Đăng nhập bằng FaceID/TouchID
+				</button>
+			</Link>
+
 			<Link href="/sign-up">
 				<p className="mt-10">
 					Bạn chưa có tài khoản?

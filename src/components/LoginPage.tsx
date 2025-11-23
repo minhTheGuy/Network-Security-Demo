@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { supported } from '@github/webauthn-json'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { startAuthentication } from '@simplewebauthn/browser'
 import type { AuthenticationResponseJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types'
 
@@ -76,26 +77,44 @@ const LoginPage = () => {
   }
 
   return (
-    <form method="POST" onSubmit={onSubmit} className="flex flex-col gap-4 max-w-sm w-full">
-      <input
-        type="email"
-        id="email"
-        name="email"
-        placeholder="Email"
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
-        className="border border-gray-300 rounded px-3 py-2 text-black"
-        required
-      />
-      <button
-        type="submit"
-        className="bg-black text-white rounded px-4 py-2 disabled:opacity-60"
-        disabled={isSubmitting || email.length === 0}
-      >
-        {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập bằng Passkey'}
-      </button>
-      {error ? <p className="text-sm text-red-500">{error}</p> : null}
-    </form>
+    <div className="flex flex-col gap-4 max-w-sm w-full">
+      <form method="POST" onSubmit={onSubmit} className="flex flex-col gap-4">
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 text-black"
+          required
+        />
+        <button
+          type="submit"
+          className="bg-black text-white rounded px-4 py-2 disabled:opacity-60"
+          disabled={isSubmitting || email.length === 0}
+        >
+          {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập bằng Passkey'}
+        </button>
+        {error ? <p className="text-sm text-red-500">{error}</p> : null}
+      </form>
+
+      <div className="mt-4">
+        <div className="relative flex items-center">
+          <div className="flex-grow border-t border-gray-400"></div>
+          <span className="flex-shrink mx-4 text-gray-400 text-sm">hoặc</span>
+          <div className="flex-grow border-t border-gray-400"></div>
+        </div>
+      </div>
+
+      <Link href="/faceid/login">
+        <button
+          type="button"
+          className="w-full p-2 border-2 border-blue-500 text-blue-500 rounded px-4 py-2 font-bold hover:bg-blue-500 hover:text-white transition-colors">
+          Đăng nhập bằng FaceID/TouchID
+        </button>
+      </Link>
+    </div>
   )
 }
 
