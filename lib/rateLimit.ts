@@ -22,7 +22,7 @@ const createLimiter = (prefix: string, requests: number, window: Duration) =>
   })
 
 const apiLimiter = createLimiter('api-auth', 10, '1 m')
-const middlewareLimiter = createLimiter('middleware', 60, '1 m')
+const middlewareLimiter = createLimiter('middleware', 20, '1 m')
 
 export const limitApiRoute = async (ip: string, routeKey: string) => {
   return apiLimiter.limit(`${routeKey}:${ip}`)
