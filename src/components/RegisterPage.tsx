@@ -62,7 +62,7 @@ const RegisterPage = () => {
 
     try {
       const options = await requestChallenge()
-      const registrationResponse = await startRegistration(options)
+      const registrationResponse = await startRegistration({ optionsJSON: options })
       await verifyResponse(registrationResponse)
       router.push('/admin')
     } catch (err) {

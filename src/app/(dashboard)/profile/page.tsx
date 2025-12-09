@@ -4,7 +4,10 @@ import { getRegisteredUserIdFromCookieStorage } from '@lib/cookieActions';
 import User, { type IUser } from '@/models/user';
 import WebAuthnCredential, { type IWebAuthnCredential } from '@/models/webauthnCredential';
 import LogoutButton from '@/components/LogoutButton';
-import { Types } from 'mongoose';
+import { Types, type Document } from 'mongoose';
+
+// Force dynamic rendering since we use cookies
+export const dynamic = 'force-dynamic';
 
 // Type cho lean user document
 type LeanUser = Omit<IUser, keyof Document> & {
@@ -17,18 +20,19 @@ type LeanCredential = Omit<IWebAuthnCredential, keyof Document> & {
 };
 
 export default async function ProfilePage() {
-	// Lấy userId từ session
-	const userId = await getRegisteredUserIdFromCookieStorage();
-	if (!userId) {
-		redirect('/sign-in');
-	}
+	try {
+		// Lấy userId từ session
+		const userId = await getRegisteredUserIdFromCookieStorage();
+		if (!userId) {
+			redirect('/sign-in');
+		}
 
-	// Kết nối database và lấy thông tin user
-	await connectToMongoDB();
-	const user = await User.findById(userId).lean<LeanUser>();
-	if (!user) {
-		redirect('/sign-in');
-	}
+		// Kết nối database và lấy thông tin user
+		await connectToMongoDB();
+		const user = await User.findById(userId).lean<LeanUser>();
+		if (!user) {
+			redirect('/sign-in');
+		}
 
 	// Lấy danh sách credentials
 	const credentials = await WebAuthnCredential.find({ userId: user._id })
@@ -231,4 +235,9 @@ export default async function ProfilePage() {
 			</div>
 		</div>
 	);
+	} catch (error) {
+		console.error('Error in ProfilePage:', error);
+		// Redirect to sign-in on any error
+		redirect('/sign-in');
+	}
 }

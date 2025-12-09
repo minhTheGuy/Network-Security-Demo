@@ -63,7 +63,7 @@ export const getRegistrationOptions = async (
   }
 
   const registrationOptions = await generateRegistrationOptions(registrationOptionsParameters)
-  await setChallengeToCookieStorage(registrationOptions.challenge)
+  await setChallengeToCookieStorage(registrationOptions.challenge, user._id.toString())
   return registrationOptions
 }
 

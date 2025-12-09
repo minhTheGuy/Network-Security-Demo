@@ -23,6 +23,7 @@ export const SignInForm: React.FC = () => {
 	const [loading, setLoading] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [isSupported, setIsSupported] = useState<boolean | null>(null);
+	const [csrfToken, setCsrfToken] = useState<string>('');
 
 	useEffect(() => {
 		const checkSupport = async () => {
@@ -34,13 +35,32 @@ export const SignInForm: React.FC = () => {
 			}
 		};
 
+		const fetchCsrfToken = async () => {
+			try {
+				const response = await fetch('/api/csrf-token');
+				const data = await response.json();
+				if (data.token) {
+					setCsrfToken(data.token);
+				}
+			} catch (error) {
+				console.error('Failed to fetch CSRF token:', error);
+			}
+		};
+
 		void checkSupport();
+		fetchCsrfToken();
 	}, []);
 
 	const requestChallenge = async (): Promise<PublicKeyCredentialRequestOptionsJSON> => {
+		if (!csrfToken) {
+			throw new Error('CSRF token chưa sẵn sàng');
+		}
 		const response = await fetch('/api/auth/login-challenge', {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRF-Token': csrfToken,
+			},
 			body: JSON.stringify({ email: email.toLowerCase().trim() }),
 		});
 
@@ -53,9 +73,15 @@ export const SignInForm: React.FC = () => {
 	};
 
 	const verifyResponse = async (authenticationResponse: AuthenticationResponseJSON) => {
+		if (!csrfToken) {
+			throw new Error('CSRF token chưa sẵn sàng');
+		}
 		const response = await fetch('/api/auth/login-verify', {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRF-Token': csrfToken,
+			},
 			body: JSON.stringify({
 				email: email.toLowerCase().trim(),
 				credential: authenticationResponse,

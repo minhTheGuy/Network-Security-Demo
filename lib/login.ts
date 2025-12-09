@@ -41,7 +41,7 @@ export const getAuthenticationOptionsJSON = async (
   const authenticationOptionsJSON = await generateAuthenticationOptions(
     authenticationOptionsParameters,
   )
-  await setChallengeToCookieStorage(authenticationOptionsJSON.challenge)
+  await setChallengeToCookieStorage(authenticationOptionsJSON.challenge, user._id.toString())
   return authenticationOptionsJSON
 }
 

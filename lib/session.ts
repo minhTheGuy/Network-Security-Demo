@@ -6,11 +6,20 @@ import {
 import { cookies } from 'next/headers'
 
 const sessionOptions: SessionOptions = {
-  password: process.env.SECRET_COOKIE_PASSWORD ?? '',
+  password: process.env.SECRET_COOKIE_PASSWORD || '',
   cookieName: process.env.SESSION_COOKIE_NAME ?? 'myapp-webauthn',
   cookieOptions: {
     secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+    path: '/',
   },
+}
+
+// Validate SECRET_COOKIE_PASSWORD
+if (!process.env.SECRET_COOKIE_PASSWORD) {
+  console.warn('WARNING: SECRET_COOKIE_PASSWORD is not set. Session encryption may not work properly.');
 }
 
 declare module 'iron-session' {

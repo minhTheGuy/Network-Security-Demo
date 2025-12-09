@@ -20,9 +20,12 @@ interface SignUpFormState {
 	email: string;
 }
 
-const createJsonRequest = (payload: Record<string, unknown>) => ({
+const createJsonRequest = (payload: Record<string, unknown>, csrfToken: string) => ({
 	method: 'POST',
-	headers: { 'Content-Type': 'application/json' },
+	headers: {
+		'Content-Type': 'application/json',
+		'X-CSRF-Token': csrfToken,
+	},
 	body: JSON.stringify(payload),
 });
 
@@ -33,6 +36,7 @@ export const SignUpForm: React.FC = () => {
 	const [errorMessage, setErrorMessage] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
 	const [isWebAuthnReady, setIsWebAuthnReady] = useState<boolean | null>(null);
+	const [csrfToken, setCsrfToken] = useState<string>('');
 
 	useEffect(() => {
 		const checkSupport = async () => {
@@ -48,13 +52,29 @@ export const SignUpForm: React.FC = () => {
 			}
 		};
 
+		const fetchCsrfToken = async () => {
+			try {
+				const response = await fetch('/api/csrf-token');
+				const data = await response.json();
+				if (data.token) {
+					setCsrfToken(data.token);
+				}
+			} catch (error) {
+				console.error('Failed to fetch CSRF token:', error);
+			}
+		};
+
 		checkSupport();
+		fetchCsrfToken();
 	}, []);
 
 	const requestRegistrationOptions = async (): Promise<PublicKeyCredentialCreationOptionsJSON> => {
+		if (!csrfToken) {
+			throw new Error('CSRF token chưa sẵn sàng');
+		}
 		const response = await fetch(
 			'/api/auth/register-challenge',
-			createJsonRequest({ email: form.email.trim(), username: form.name.trim() })
+			createJsonRequest({ email: form.email.trim(), username: form.name.trim() }, csrfToken)
 		);
 		
 		// Kiểm tra Content-Type trước khi parse JSON
@@ -72,13 +92,19 @@ export const SignUpForm: React.FC = () => {
 	};
 
 	const verifyRegistration = async (credential: RegistrationResponseJSON) => {
+		if (!csrfToken) {
+			throw new Error('CSRF token chưa sẵn sàng');
+		}
 		const response = await fetch(
 			'/api/auth/register-verify',
-			createJsonRequest({
-				email: form.email.trim(),
-				username: form.name.trim(),
-				credential,
-			})
+			createJsonRequest(
+				{
+					email: form.email.trim(),
+					username: form.name.trim(),
+					credential,
+				},
+				csrfToken
+			)
 		);
 
 		// Kiểm tra Content-Type trước khi parse JSON

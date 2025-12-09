@@ -21,6 +21,7 @@ const FaceIDRegisterPage = () => {
   const [isIOS, setIsIOS] = useState(false)
   const [isSafari, setIsSafari] = useState(false)
   const [isChrome, setIsChrome] = useState(false)
+  const [csrfToken, setCsrfToken] = useState<string>('')
 
   useEffect(() => {
     const checkAvailability = async () => {
@@ -72,13 +73,32 @@ const FaceIDRegisterPage = () => {
       }
     }
 
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await fetch('/api/csrf-token')
+        const data = await response.json()
+        if (data.token) {
+          setCsrfToken(data.token)
+        }
+      } catch (error) {
+        console.error('Failed to fetch CSRF token:', error)
+      }
+    }
+
     checkAvailability()
+    fetchCsrfToken()
   }, [])
 
   const requestChallenge = async (): Promise<PublicKeyCredentialCreationOptionsJSON> => {
+    if (!csrfToken) {
+      throw new Error('CSRF token chưa sẵn sàng')
+    }
     const response = await fetch('/api/auth/faceid/register-challenge', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken,
+      },
       body: JSON.stringify({ email, username }),
     })
     if (!response.ok) {
@@ -90,9 +110,15 @@ const FaceIDRegisterPage = () => {
   }
 
   const verifyResponse = async (registrationResponse: RegistrationResponseJSON) => {
+    if (!csrfToken) {
+      throw new Error('CSRF token chưa sẵn sàng')
+    }
     const response = await fetch('/api/auth/faceid/register-verify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken,
+      },
       body: JSON.stringify({ email, username, credential: registrationResponse }),
     })
     if (!response.ok) {
