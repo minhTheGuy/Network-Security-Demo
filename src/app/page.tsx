@@ -31,7 +31,7 @@ export default function Home() {
 					{/* Main Title */}
 					<div className="mb-8">
 						<h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-4 leading-tight">
-							Bảo Mật Mạng Máy Tính
+							Bảo Mật Mạng 
 						</h1>
 						<p className="text-2xl md:text-3xl text-gray-600 font-medium">
 							Web Application
