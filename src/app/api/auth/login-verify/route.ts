@@ -1,14 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { loginUser } from '@lib/login';
-import {
-	authenticatedUserIdToCookieStorage,
-	consumeChallengeFromCookieStorage,
-} from '@lib/cookieActions';
+import { consumeChallengeFromCookieStorage } from '@lib/cookieActions';
 import { getRpID, getOrigin } from '@lib/webauthn-helpers';
 import { verifyCsrfToken } from '@lib/csrf';
 import { isLocked, recordFailedAttempt, clearFailedAttempts, getLockoutStatus } from '@lib/account-lockout';
-import { getClientIp } from '@lib/rateLimit';
 import { sanitizeEmail } from '@lib/input-validation';
+import { createJwtToken } from '@lib/jwtServer';
+import { JWT_COOKIE_NAME } from '@lib/jwtConfig';
+
+// Helper to get client IP
+const getClientIp = (headers: Headers, fallback = 'unknown') => {
+	const forwarded = headers.get('x-forwarded-for');
+	if (forwarded) {
+		const [first] = forwarded.split(',');
+		if (first?.trim()) return first.trim();
+	}
+	return headers.get('x-real-ip') || fallback;
+};
 
 const LOCKOUT_DURATION_MINUTES = 15;
 
@@ -71,9 +79,20 @@ export async function POST(request: NextRequest) {
 			await clearFailedAttempts(sanitizedEmail, 'email');
 			await clearFailedAttempts(clientIp, 'ip');
 
-			await authenticatedUserIdToCookieStorage(user);
+			// Create JWT token and set cookie
+			const userId = user._id?.toString() || user.id?.toString();
+			const jwtToken = await createJwtToken(userId);
+			
+			const response = NextResponse.json({ success: true });
+			response.cookies.set(JWT_COOKIE_NAME, jwtToken, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === 'production',
+				sameSite: 'lax',
+				path: '/',
+				maxAge: 60 * 60 * 24, // 1 day
+			});
 
-			return NextResponse.json({ success: true });
+			return response;
 		} catch (error) {
 			// Record failed attempt
 			await recordFailedAttempt(sanitizedEmail, 'email');
