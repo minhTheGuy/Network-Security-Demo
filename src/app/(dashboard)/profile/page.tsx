@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { connectToMongoDB } from '@lib/db';
-import { getRegisteredUserIdFromCookieStorage } from '@lib/cookieActions';
+import { getCurrentUserId } from '@lib/jwt';
 import User, { type IUser } from '@/models/user';
 import WebAuthnCredential, { type IWebAuthnCredential } from '@/models/webauthnCredential';
 import LogoutButton from '@/components/LogoutButton';
@@ -21,8 +21,8 @@ type LeanCredential = Omit<IWebAuthnCredential, keyof Document> & {
 
 export default async function ProfilePage() {
 	try {
-		// Lấy userId từ session
-		const userId = await getRegisteredUserIdFromCookieStorage();
+		// Lấy userId từ JWT token
+		const userId = await getCurrentUserId();
 		if (!userId) {
 			redirect('/sign-in');
 		}
